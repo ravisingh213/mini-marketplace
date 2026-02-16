@@ -1,275 +1,189 @@
-🛒 Mini Marketplace Payment System
+# 🛒 Mini Marketplace Payment System
 
-A full-stack Mini Marketplace Payment System built using:
+A production-style Mini Marketplace Payment System demonstrating
+webhook-based payment confirmation, vendor onboarding lifecycle,
+commission calculation, and wallet accounting.
 
-Frontend: React
+------------------------------------------------------------------------
 
-Backend: Node.js + Express
+## 📌 Overview
 
-Database: MongoDB
+This project simulates a real-world marketplace payment architecture
+similar to Stripe Connect.
 
-Payment Simulation: Mock Stripe-like Webhook System
+Key Highlights:
 
-📌 Objective
+-   Vendor onboarding lifecycle
+-   Backend-controlled 10% commission
+-   Webhook-driven payment confirmation
+-   Atomic wallet updates using `$inc`
+-   Idempotent webhook handling
+-   Clean modular backend structure
 
-Build a Mini Marketplace Payment System that demonstrates:
+------------------------------------------------------------------------
 
-Vendor onboarding flow
+## 🏗 Tech Stack
 
-Backend-controlled commission calculation
+### Frontend
 
-Webhook-based payment confirmation
+-   React
 
-Wallet accounting with atomic updates
+### Backend
 
-Idempotent webhook handling
+-   Node.js
+-   Express.js
+-   MongoDB
+-   Mongoose
 
-The system simulates real-world marketplace payment architecture similar to Stripe Connect.
+------------------------------------------------------------------------
 
-👥 System Roles
-1️⃣ Customer
+## 👥 Roles
 
-View products
+  Role       Description
+  ---------- ---------------------------
+  Customer   Purchases products
+  Vendor     Onboards & receives funds
+  Platform   Collects 10% commission
 
-Click Pay Now
+------------------------------------------------------------------------
 
-Track payment status
+## 🔄 Payment Flow
 
-2️⃣ Vendor
-
-Complete onboarding
-
-Receive funds in wallet
-
-View wallet balance
-
-3️⃣ Platform (Admin)
-
-Collect 10% commission
-
-Maintain platform wallet
-
-🏗 High-Level Architecture
-Customer
-↓
-Frontend (React)
-↓
-Backend (Node.js + Express)
-↓
-Create Payment (status = pending)
-↓
-Simulated Webhook Event
-↓
-Update Payment Status → success
-↓
-Credit Vendor Wallet (90%)
+Customer → Frontend → Backend\
+Create Payment (status = pending)\
+Simulated Webhook Event\
+Update Payment → success\
+Credit Vendor Wallet (90%)\
 Credit Platform Wallet (10%)
 
-💳 Payment Flow (Step-by-Step)
-1️⃣ Vendor Onboarding
+------------------------------------------------------------------------
 
-Vendor status types:
-
-not_connected
-
-pending
-
-active
-
-Vendor must be ACTIVE before receiving payments.
-
-2️⃣ Create Payment
-Endpoint:
-POST /create-payment
-
-Request Body:
-{
-"productId": "PRODUCT_ID",
-"customerId": "CUSTOMER_ID"
-}
-
-Backend Logic:
-
-Validate vendor is ACTIVE
-
-Calculate 10% platform fee
-
-Generate paymentIntentId
-
-Save payment with:
-
-status = pending
-
-3️⃣ Webhook Simulation (Single Source of Truth)
-Endpoint:
-POST /webhook
-
-Payload:
-{
-"eventType": "payment.success",
-"paymentIntentId": "xyz123"
-}
-
-Webhook Responsibilities:
-
-Verify signature (mock allowed)
-
-Prevent duplicate processing (idempotency)
-
-Update payment status → success
-
-Credit vendor wallet
-
-Credit platform wallet
-
-⚠ Payment success must ONLY happen via webhook.
-
-💰 Commission Logic
+## 💳 Commission Logic
 
 Example:
 
-Product Price = ₹1000
-Platform Fee (10%) = ₹100
-Vendor Receives = ₹900
+Product Price: ₹1000\
+Platform Fee (10%): ₹100\
+Vendor Receives: ₹900
 
-Wallet Updates (Atomic using $inc):
+All calculations are handled securely on the backend.
 
-Vendor Wallet +900
-Platform Wallet +100
+------------------------------------------------------------------------
 
-🗄 Database Collections
-1️⃣ users
+## 🔐 Vendor Onboarding
 
-name
+Vendor Status:
 
-email
+-   not_connected
+-   pending
+-   active
 
-password
+Rules:
 
-role (customer / vendor / admin)
+-   Vendor must be ACTIVE before receiving payments.
+-   Resume onboarding allowed if status = pending.
 
-2️⃣ vendors
+------------------------------------------------------------------------
 
-userId
+## 📡 API Endpoints
 
-status (not_connected / pending / active)
+### POST /vendor/onboard
 
-onboardingLink
+Start or resume onboarding.
 
-3️⃣ products
+### GET /vendor/wallet/:vendorId
 
-name
+Fetch vendor wallet balance.
 
-price
+### POST /create-payment
 
-vendorId
+Create payment (status = pending).
 
-4️⃣ payments
+### POST /webhook
 
-productId
+Handle simulated payment.success event.
 
-customerId
+### GET /payment/:id
 
-vendorId
+Fetch payment status.
 
-amount
+### GET /platform/wallet
 
-platformFee
+Fetch admin wallet balance.
 
-paymentIntentId (unique + indexed)
+------------------------------------------------------------------------
 
-status (pending / success / failed)
+## 🗄 Database Collections
 
-5️⃣ wallets
+-   users
+-   vendors
+-   products
+-   payments (paymentIntentId indexed & unique)
+-   wallets
 
-ownerId
+------------------------------------------------------------------------
 
-ownerType (vendor / platform)
+## 🧠 Idempotency Strategy
 
-balance
+-   Unique index on paymentIntentId
+-   Ignore webhook if payment already success
+-   Atomic wallet update using `$inc`
 
-🔐 Important Architectural Rules
+------------------------------------------------------------------------
 
-✅ Frontend must NOT mark payment as success
-✅ Webhook is the single source of truth
-✅ Platform fee calculated on backend only
-✅ Duplicate webhook events must not double-credit wallets
-✅ paymentIntentId must have unique index
+## 📂 Project Structure
 
-🔄 Idempotency Handling
+src/ ├── controllers/ ├── services/ ├── models/ ├── routes/ ├──
+middlewares/ └── utils/
 
-To prevent duplicate wallet credit:
+------------------------------------------------------------------------
 
-Unique index on paymentIntentId
+## ⚙ Environment Variables
 
-Check payment status before processing webhook
+Create a `.env` file in backend:
 
-Ignore if already success
+PORT=5000\
+MONGO_URI="your mongodb url"
+WEBHOOK_SECRET=mock_secret
 
-📡 API Endpoints
-Vendor
-POST /vendor/onboard
+------------------------------------------------------------------------
 
-Start or resume onboarding
+## 🚀 Run Project
 
-GET /vendor/wallet
+### Backend
 
-Get vendor wallet balance
+npm install\
+npm run dev
 
-Payment
-POST /create-payment
+### Frontend
 
-Create payment (pending state)
+npm install\
+npm run dev
 
-POST /webhook
 
-Simulated gateway event
 
-GET /payment/:id
 
-Fetch payment status
 
-📂 Project Structure
-src/controllers/
-src/routes/
-src/services/
-src/models/
-src/middlewares/
-src/utils/
 
-Responsibilities:
 
-Controllers → Handle request/response
 
-Services → Business logic
 
-Models → Mongoose schemas
 
-Routes → API mapping
 
-Middlewares → Validation & error handling
 
-🚀 How to Run
-Backend
-npm install
-node server.js
 
-Frontend
-npm install
-npm run start
 
-🧠 Key Concepts Demonstrated
 
-Marketplace architecture
 
-Vendor onboarding lifecycle
 
-Webhook-driven payment confirmation
 
-Commission calculation logic
 
-Wallet accounting
 
-Idempotent event handling
 
-Clean modular backend architecture
+
+
+
+
+
+-   Wallet updates are atomic and idempotent.
+-   Commission is securely calculated on backend.
