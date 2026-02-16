@@ -41,8 +41,8 @@ Key Highlights:
 
   Role       Description
   ---------- ---------------------------
-  Customer   Purchases products
-  Vendor     Onboards & receives funds
+  Customer   Purchases products\
+  Vendor     Onboards & receives funds\
   Platform   Collects 10% commission
 
 ------------------------------------------------------------------------
@@ -143,7 +143,7 @@ middlewares/ └── utils/
 Create a `.env` file in backend:
 
 PORT=5000\
-MONGO_URI="your mongodb url"
+MONGO_URI="your mongodb url"\
 WEBHOOK_SECRET=mock_secret
 
 ------------------------------------------------------------------------
@@ -153,12 +153,12 @@ WEBHOOK_SECRET=mock_secret
 ### Backend
 
 npm install\
-npm run dev
+nodemon server.js
 
 ### Frontend
 
 npm install\
-npm run dev
+npm run start
 
 
 
